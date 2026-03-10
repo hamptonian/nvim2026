@@ -6,11 +6,11 @@ return {
   opts = {
     options = {
       icons_enabled = true,
-      theme = 'tokyonight',
+      theme = 'kanagawa',
       component_separators = { left = '', right = '' },
       section_separators = { left = '', right = '' },
       disabled_filetypes = {
-        statusline = { 'dashboard', 'alpha', 'neo-tree' },
+        statusline = { 'dashboard', 'alpha', 'neo-tree', 'NvimTree' },
         winbar = {},
       },
       ignore_focus = {},
@@ -41,6 +41,6 @@ return {
     tabline = {},
     winbar = {},
     inactive_winbar = {},
-    extensions = { 'neo-tree', 'toggleterm' },
+    extensions = { 'neo-tree', 'toggleterm', 'nvim-tree' },
   },
 }
