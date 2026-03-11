@@ -94,7 +94,7 @@ vim.g.maplocalleader = ' '
 vim.g.have_nerd_font = true
 
 -- Block cursor in all modes
-vim.opt.guicursor = 'a:block'
+vim.opt.guicursor = 'n:block,i:block-blinkwait700'
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
@@ -121,6 +121,9 @@ vim.schedule(function() vim.o.clipboard = 'unnamedplus' end)
 
 -- Enable break indent
 vim.o.breakindent = true
+vim.o.wrap = true
+vim.o.linebreak = true
+vim.wo.colorcolumn = "80"
 
 -- Enable undo/redo changes even after closing and reopening a file
 vim.o.undofile = true
@@ -427,17 +430,7 @@ require('lazy').setup({
       -- Find files group (file-specific searching)
       vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = '[F]ind [F]iles' })
       vim.keymap.set('n', '<leader>fg', builtin.git_files, { desc = '[F]ind [G]it files' })
-      vim.keymap.set(
-        'n',
-        '<leader>fh',
-        function()
-          builtin.find_files {
-            hidden = true,
-            no_ignore = true,
-          }
-        end,
-        { desc = '[F]ind [H]idden files' }
-      )
+      vim.keymap.set('n', '<leader>fh', function() builtin.find_files { hidden = true, no_ignore = true } end, { desc = '[F]ind [H]idden/All files' })
       vim.keymap.set('n', '<leader>fn', function() builtin.find_files { cwd = vim.fn.stdpath 'config' } end, { desc = '[F]ind [N]eovim files' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
 
@@ -576,9 +569,23 @@ require('lazy').setup({
           -- or a suggestion from your LSP for this to activate.
           map('gra', vim.lsp.buf.code_action, '[G]oto Code [A]ction', { 'n', 'x' })
 
+          -- Jump to the definition of the word under your cursor.
+          map('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
+
+          -- Jump to the implementation (useful for interfaces/abstract types).
+          map('gi', vim.lsp.buf.implementation, '[G]oto [I]mplementation')
+
           -- WARN: This is not Goto Definition, this is Goto Declaration.
           --  For example, in C this would take you to the header.
+          map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
           map('grD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+
+          -- Show hover documentation for the symbol under the cursor.
+          -- Press K again to move focus into the hover window (then q to close).
+          map('K', vim.lsp.buf.hover, 'Hover Documentation')
+
+          -- Show signature help when cursor is inside a function call's arguments.
+          map('<C-k>', vim.lsp.buf.signature_help, 'Signature Help')
 
           -- The following two autocommands are used to highlight references of the
           -- word under your cursor when your cursor rests there for a little while.
@@ -796,13 +803,13 @@ require('lazy').setup({
     -- change the command in the config to whatever the name of that colorscheme is.
     --
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'rebelot/kanagawa.nvim',
+    'vague-theme/vague.nvim',
     priority = 1000, -- Make sure to load this before all the other start plugins.
     config = function()
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'kanagawa'
+      vim.cmd.colorscheme 'vague'
     end,
   },
 
@@ -902,28 +909,6 @@ require('lazy').setup({
   -- require 'kickstart.plugins.autopairs',
   -- require 'kickstart.plugins.neo-tree',
   require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
-
-  -- NvimTree file explorer
-  {
-    'nvim-tree/nvim-tree.lua',
-    dependencies = { 'nvim-tree/nvim-web-devicons' },
-    keys = {
-      { '<leader>fe', '<cmd>NvimTreeToggle<CR>', desc = 'Toggle file explorer' },
-      { '<leader>ff', '<cmd>NvimTreeFindFile<CR>', desc = 'Find file in explorer' },
-    },
-    opts = {
-      sort_by = 'case_sensitive',
-      view = {
-        width = 30,
-      },
-      renderer = {
-        group_empty = true,
-      },
-      filters = {
-        dotfiles = false,
-      },
-    },
-  },
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.

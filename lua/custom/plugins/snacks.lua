@@ -11,7 +11,7 @@ return {
       insert_only = true,
       start_mode = 'insert',
       border = 'rounded',
-      relative = 'cursor',
+      relative = 'editor',
       prefer_width = 40,
       width = nil,
       max_width = { 140, 0.9 },

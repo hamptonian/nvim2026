@@ -15,8 +15,9 @@ return {
     'nvim-treesitter/nvim-treesitter',
     'nvim-tree/nvim-web-devicons',
   },
-  config = function()
+  config = function(_, opts)
     local aerial = require 'aerial'
+    aerial.setup(opts)
 
     -- Keymaps for aerial
     vim.keymap.set('n', '<leader>ua', aerial.toggle, { desc = '[U]I [A]erial (Code Outline)' })
