@@ -22,5 +22,11 @@ return {
 
     -- Open diffview to see working tree changes vs HEAD
     vim.keymap.set('n', '<leader>gd', '<cmd>DiffviewOpen<CR>', { desc = '[G]it [D]iff (Diffview)' })
+
+    -- Close diffview
+    vim.keymap.set('n', '<leader>gq', '<cmd>DiffviewClose<CR>', { desc = '[G]it Close Diffview' })
+
+    -- Git log via diffview (show commit history)
+    vim.keymap.set('n', '<leader>gl', '<cmd>DiffviewFileHistory<CR>', { desc = '[G]it [L]og (File History)' })
   end,
 }

@@ -5,6 +5,7 @@ return {
   dependencies = { 'nvim-tree/nvim-web-devicons' },
   keys = {
     { '<leader>fe', '<cmd>NvimTreeToggle<CR>', desc = 'Toggle file explorer' },
+    { '<leader>fr', '<cmd>NvimTreeFindFile<CR>', desc = 'Reveal current file in tree' },
   },
   opts = {
     sort_by = 'case_sensitive',

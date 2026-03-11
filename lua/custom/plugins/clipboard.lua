@@ -4,10 +4,12 @@ return {
   {
     'which-key.nvim', -- Pseudo-dependency just to ensure this runs after which-key loads
     config = function()
-      -- Yank to system clipboard (registers remain independent by default)
-      vim.keymap.set({ 'n', 'v' }, '<leader>y', '"+y', { noremap = true, desc = 'Yank to clipboard' })
-      vim.keymap.set('n', '<leader>Y', '"+Y', { noremap = true, desc = 'Yank line to clipboard' })
-      vim.keymap.set('n', '<leader>ya', ':silent %y+<CR>', { noremap = true, desc = 'Yank all (file) to clipboard' })
+      -- Yank motion/selection to system clipboard (+)
+      vim.keymap.set({ 'n', 'v' }, '<leader>y', '"+y', { noremap = true, desc = 'Yank to clipboard (+)' })
+      vim.keymap.set('n', '<leader>Y', '"+Y', { noremap = true, desc = 'Yank line to clipboard (+)' })
+
+      -- Copy entire file to system clipboard
+      vim.keymap.set('n', '<leader>ca', ':silent %y+<CR>', { noremap = true, desc = 'Copy all (file) to clipboard' })
 
       -- Copy file path (relative) to clipboard
       vim.keymap.set('n', '<leader>cf', function()
