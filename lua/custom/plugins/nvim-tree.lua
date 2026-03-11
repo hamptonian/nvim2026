@@ -6,6 +6,7 @@ return {
   keys = {
     { '<leader>fe', '<cmd>NvimTreeToggle<CR>', desc = 'Toggle file explorer' },
     { '<leader>fr', '<cmd>NvimTreeFindFile<CR>', desc = 'Reveal current file in tree' },
+    { '<leader>fc', '<cmd>NvimTreeCollapse<CR>', desc = 'Collapse file tree' },
   },
   opts = {
     sort_by = 'case_sensitive',
