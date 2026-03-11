@@ -2,7 +2,9 @@
 ---@type LazySpec
 return {
   {
-    'which-key.nvim', -- Pseudo-dependency just to ensure this runs after which-key loads
+    dir = vim.fn.stdpath('config'), -- point to config directory
+    name = 'clipboard-mappings', -- give it a name
+    dependencies = { 'which-key.nvim' }, -- ensure this runs after which-key loads
     config = function()
       -- Yank motion/selection to system clipboard (+)
       vim.keymap.set({ 'n', 'v' }, '<leader>y', '"+y', { noremap = true, desc = 'Yank to clipboard (+)' })
