@@ -13,12 +13,13 @@ return {
 
     -- Configure Neogit with floating window for learning phase
     neogit.setup {
-      kind = 'floating', -- Use floating window instead of fullscreen
-      window = {
-        width = 0.85, -- 85% of screen width
-        height = 0.85, -- 85% of screen height
-        border = 'rounded',
-      },
+      -- kind = 'floating', -- Default is fullscreen
+      -- window = {
+      --   width = 0.9, -- 90% of screen width
+      --   height = 0.9, -- 90% of screen height
+      --   border = 'rounded',
+      -- },
+      disable_relative_line_numbers = false, -- Enable relative line numbers in neogit buffers
       signs = {
         section = { '', '' },
         item = { '', '' },
@@ -29,7 +30,7 @@ return {
       },
     }
 
-    -- Configure Diffview with better keybindings
+    -- Configure Diffview with better keybindings and floating window
     diffview.setup {
       keymaps = {
         view = {
@@ -42,6 +43,31 @@ return {
           q = '<cmd>DiffviewClose<CR>', -- Easy quit from file history
         },
       },
+      view = {
+        default = {
+          layout = 'diff2_horizontal',
+          winbar_info = false,
+        },
+      },
+      file_panel = {
+        win_config = {
+          position = 'left',
+          width = 35,
+          height = 10,
+        },
+      },
+      -- Configure diff windows to open as floating windows
+      win_config = function()
+        return {
+          type = 'float',
+          relative = 'editor',
+          row = math.floor(vim.o.lines * 0.05),
+          col = math.floor(vim.o.columns * 0.05),
+          width = math.floor(vim.o.columns * 0.9),
+          height = math.floor(vim.o.lines * 0.9),
+          border = 'rounded',
+        }
+      end,
     }
 
     -- Open neogit UI - all git operations (commit, push, pull, etc.) are done within the UI
