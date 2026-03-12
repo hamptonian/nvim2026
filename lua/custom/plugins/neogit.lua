@@ -9,10 +9,52 @@ return {
   },
   config = function()
     local neogit = require 'neogit'
-    neogit.setup()
+    local diffview = require 'diffview'
+
+    -- Configure Neogit with floating window for learning phase
+    neogit.setup {
+      kind = 'floating', -- Use floating window instead of fullscreen
+      window = {
+        width = 0.85, -- 85% of screen width
+        height = 0.85, -- 85% of screen height
+        border = 'rounded',
+      },
+      signs = {
+        section = { '', '' },
+        item = { '', '' },
+        hunk = { '', '' },
+      },
+      integrations = {
+        diffview = true, -- Use diffview for diffs within Neogit
+      },
+    }
+
+    -- Configure Diffview with better keybindings
+    diffview.setup {
+      keymaps = {
+        view = {
+          q = '<cmd>DiffviewClose<CR>', -- Easy quit with 'q'
+        },
+        file_panel = {
+          q = '<cmd>DiffviewClose<CR>', -- Easy quit from file panel
+        },
+        file_history_panel = {
+          q = '<cmd>DiffviewClose<CR>', -- Easy quit from file history
+        },
+      },
+    }
 
     -- Open neogit UI - all git operations (commit, push, pull, etc.) are done within the UI
     vim.keymap.set('n', '<leader>gg', neogit.open, { desc = '[G]it Status ([G]neogit)' })
+
+    -- Close neogit floating window (in addition to 'q' key inside neogit)
+    vim.keymap.set('n', '<leader>gq', function()
+      if vim.bo.filetype == 'NeogitStatus' then
+        vim.cmd 'quit'
+      else
+        vim.cmd 'DiffviewClose'
+      end
+    end, { desc = '[G]it Close (Neogit or Diffview)' })
 
     -- Browse commits in telescope
     vim.keymap.set('n', '<leader>gc', function() require('telescope.builtin').git_commits() end, { desc = '[G]it [C]ommits' })
@@ -23,10 +65,21 @@ return {
     -- Open diffview to see working tree changes vs HEAD
     vim.keymap.set('n', '<leader>gd', '<cmd>DiffviewOpen<CR>', { desc = '[G]it [D]iff (Diffview)' })
 
-    -- Close diffview
-    vim.keymap.set('n', '<leader>gq', '<cmd>DiffviewClose<CR>', { desc = '[G]it Close Diffview' })
-
     -- Git log via diffview (show commit history)
     vim.keymap.set('n', '<leader>gl', '<cmd>DiffviewFileHistory<CR>', { desc = '[G]it [L]og (File History)' })
+
+    -- Force close all diffview buffers (in case 'q' doesn't work)
+    vim.keymap.set('n', '<leader>gx', function()
+      vim.cmd 'DiffviewClose'
+      -- Force kill any lingering diffview buffers
+      for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+        if vim.api.nvim_buf_is_loaded(buf) then
+          local filetype = vim.api.nvim_buf_get_option(buf, 'filetype')
+          if filetype == 'DiffviewFiles' or filetype == 'DiffviewFileHistory' then
+            vim.api.nvim_buf_delete(buf, { force = true })
+          end
+        end
+      end
+    end, { desc = '[G]it Force-close All Diffview Buffers' })
   end,
 }
