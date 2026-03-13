@@ -26,8 +26,9 @@ return {
       tmux = { enabled = false },
     },
   },
-  config = function()
+  config = function(_, opts)
     local zenmode = require 'zen-mode'
+    zenmode.setup(opts)
 
     -- Keymaps for zen mode
     vim.keymap.set('n', '<leader>uz', zenmode.toggle, { desc = '[U]I [Z]en Mode Toggle' })

@@ -88,7 +88,7 @@ return {
       -- Force kill any lingering diffview buffers
       for _, buf in ipairs(vim.api.nvim_list_bufs()) do
         if vim.api.nvim_buf_is_loaded(buf) then
-          local filetype = vim.api.nvim_buf_get_option(buf, 'filetype')
+          local filetype = vim.api.nvim_get_option_value('filetype', { buf = buf })
           if filetype == 'DiffviewFiles' or filetype == 'DiffviewFileHistory' then vim.api.nvim_buf_delete(buf, { force = true }) end
         end
       end

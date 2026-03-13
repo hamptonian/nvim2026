@@ -59,7 +59,7 @@ return {
         { '<leader>ca', desc = ' Copy All (File)' },
         { '<leader>cf', desc = ' Copy File Path' },
         { '<leader>cl', desc = ' Copy Path:Line' },
-        { '<leader>x', desc = 'Toggle Quickfix List' },
+        { '<leader>x', desc = 'Toggle Workspace Diagnostics (Quickfix)' },
       },
       win = {
         border = 'rounded',

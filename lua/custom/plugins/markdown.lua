@@ -22,5 +22,5 @@ return {
       style = 'full',
     },
   },
-  ft = { 'markdown', 'norg' },
+  ft = { 'markdown', 'mdx', 'qmd', 'norg' },
 }
