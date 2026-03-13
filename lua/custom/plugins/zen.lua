@@ -2,6 +2,9 @@
 ---@type LazySpec
 return {
   'folke/zen-mode.nvim',
+  keys = {
+    { '<leader>uz', function() require('zen-mode').toggle() end, desc = '[U]I [Z]en Mode Toggle' },
+  },
   opts = {
     window = {
       backdrop = 0.95,
@@ -26,11 +29,4 @@ return {
       tmux = { enabled = false },
     },
   },
-  config = function(_, opts)
-    local zenmode = require 'zen-mode'
-    zenmode.setup(opts)
-
-    -- Keymaps for zen mode
-    vim.keymap.set('n', '<leader>uz', zenmode.toggle, { desc = '[U]I [Z]en Mode Toggle' })
-  end,
 }

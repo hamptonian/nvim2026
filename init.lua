@@ -785,50 +785,45 @@ require('lazy').setup({
         end
       end, 5000) -- Wait 5 seconds after startup
 
-      for name, server in pairs(servers) do
-        vim.lsp.config(name, server)
-        vim.lsp.enable(name)
-      end
+      -- Defer LSP server startup to reduce initial load time
+      vim.defer_fn(function()
+        for name, server in pairs(servers) do
+          vim.lsp.config(name, server)
+          vim.lsp.enable(name)
+        end
+      end, 100)
     end,
+  },
+
+  -- LuaSnip - load separately to avoid startup cost
+  {
+    'L3MON4D3/LuaSnip',
+    version = '2.*',
+    event = 'InsertEnter',
+    build = (function()
+      if vim.fn.has 'win32' == 1 or vim.fn.executable 'make' == 0 then return end
+      return 'make install_jsregexp'
+    end)(),
+    dependencies = {
+      {
+        'rafamadriz/friendly-snippets',
+        config = function()
+          vim.api.nvim_create_autocmd('InsertEnter', {
+            once = true,
+            callback = function()
+              require('luasnip.loaders.from_vscode').lazy_load()
+            end,
+          })
+        end,
+      },
+    },
+    opts = {},
   },
 
   { -- Autocompletion
     'saghen/blink.cmp',
     event = { 'InsertEnter', 'CmdlineEnter' },
     version = '1.*',
-    dependencies = {
-      -- Snippet Engine
-      {
-        'L3MON4D3/LuaSnip',
-        version = '2.*',
-        event = 'InsertEnter',
-        build = (function()
-          -- Build Step is needed for regex support in snippets.
-          -- This step is not supported in many windows environments.
-          -- Remove the below condition to re-enable on windows.
-          if vim.fn.has 'win32' == 1 or vim.fn.executable 'make' == 0 then return end
-          return 'make install_jsregexp'
-        end)(),
-        dependencies = {
-          -- `friendly-snippets` contains a variety of premade snippets.
-          --    See the README about individual language/framework/plugin snippets:
-          --    https://github.com/rafamadriz/friendly-snippets
-          {
-            'rafamadriz/friendly-snippets',
-            config = function()
-              -- Defer snippet loading until InsertEnter
-              vim.api.nvim_create_autocmd('InsertEnter', {
-                once = true,
-                callback = function()
-                  require('luasnip.loaders.from_vscode').lazy_load()
-                end,
-              })
-            end,
-          },
-        },
-        opts = {},
-      },
-    },
     ---@module 'blink.cmp'
     ---@type blink.cmp.Config
     opts = {
@@ -878,7 +873,10 @@ require('lazy').setup({
         min_keyword_length = 3,
       },
 
-      snippets = { preset = 'luasnip' },
+      snippets = {
+        preset = 'luasnip',
+        -- This ensures blink.cmp works even if luasnip isn't loaded yet
+      },
 
       -- Blink.cmp includes an optional, recommended rust fuzzy matcher,
       -- which automatically downloads a prebuilt binary when enabled.
@@ -988,11 +986,11 @@ require('lazy').setup({
     -- Vim fugitive (alternative to neogit for git operations)
     { -- Git wrapper with extensive features
       'tpope/vim-fugitive',
-      cmd = { 'Git', 'Gstatus', 'Gblame', 'Gdiffsplit', 'Gedit', 'Gwrite', 'Gread' },
+      cmd = { 'Git', 'G', 'Gblame', 'Gdiffsplit', 'Gedit', 'Gwrite', 'Gread' },
       keys = {
-        { '<leader>gf', '<cmd>Gedit<cr>', desc = '[G]it [E]dit (fugitive)' },
+        { '<leader>gf', '<cmd>Git<cr>', desc = '[G]it [f]ugitive status' },
         { '<leader>gC', '<cmd>Git commit<cr>', desc = '[G]it [C]ommit (fugitive)' },
-        { '<leader>gS', '<cmd>Gstatus<cr>', desc = '[G]it [S]tatus (fugitive)' },
+        { '<leader>gS', '<cmd>Git<cr>', desc = '[G]it [S]tatus (fugitive)' },
         { '<leader>gB', '<cmd>Gblame<cr>', desc = '[G]it [B]lame (fugitive)' },
       },
     },
