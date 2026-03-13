@@ -213,7 +213,7 @@ vim.keymap.set('n', '<leader>ud', function()
   if loc_open then
     vim.cmd('lclose')
   else
-    vim.diagnostic.setloclist({ open = true })
+    vim.diagnostic.setloclist({ open = true, bufnr = 0 })
   end
 end, { desc = 'Toggle Diagnostics (Location List)' })
 
@@ -316,7 +316,7 @@ rtp:prepend(lazypath)
 -- NOTE: Here is where you install your plugins.
 require('lazy').setup({
   -- NOTE: Plugins can be added via a link or github org/name. To run setup automatically, use `opts = {}`
-  { 'NMAC427/guess-indent.nvim', opts = {} },
+  { 'NMAC427/guess-indent.nvim', event = { 'BufReadPost', 'BufNewFile' }, opts = {} },
 
   -- Alternatively, use `config = function() ... end` for full control over the configuration.
   -- If you prefer to call `setup` explicitly, use:
@@ -335,6 +335,7 @@ require('lazy').setup({
   -- See `:help gitsigns` to understand what the configuration keys do
   { -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
+    event = { 'BufReadPost', 'BufNewFile' },
     ---@module 'gitsigns'
     ---@type Gitsigns.Config
     ---@diagnostic disable-next-line: missing-fields
@@ -929,7 +930,7 @@ require('lazy').setup({
 
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
-    lazy = false,
+    event = { 'BufReadPost', 'BufNewFile', 'BufWritePost' },
     build = ':TSUpdate',
     branch = 'main',
     opts = {
