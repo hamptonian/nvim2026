@@ -38,7 +38,7 @@ return {
       jump_prev_row = { '<S-Enter>', mode = { 'n', 'v' } },
     },
   },
-  cmd = { 'CsvViewEnable', 'CsvViewDisable', 'CsvViewToggle' },
+  ft = { 'csv', 'tsv' },
   keys = {
     { '<leader>cv', '<cmd>CsvViewToggle<CR>', desc = 'Toggle CSV view' },
   },
@@ -56,17 +56,17 @@ return {
       end,
     })
 
-    -- Set up rainbow column colors for better visual separation
+    -- Set up rainbow column colors for better visual separation (catppuccin mocha palette)
     local colors = {
-      '#ff6b6b', -- Red
-      '#4ecdc4', -- Teal
-      '#ffe66d', -- Yellow
-      '#95e1d3', -- Mint
-      '#f38181', -- Coral
-      '#aa96da', -- Purple
-      '#fcbad3', -- Pink
-      '#ffffd2', -- Cream
-      '#a8e6cf', -- Green
+      '#f38ba8', -- Pink
+      '#a6e3a1', -- Green  
+      '#fab387', -- Peach
+      '#89b4fa', -- Blue
+      '#f9e2af', -- Yellow
+      '#cba6f7', -- Mauve
+      '#94e2d5', -- Teal
+      '#eba0ac', -- Red
+      '#b4befe', -- Lavender
     }
 
     for i = 0, 8 do
