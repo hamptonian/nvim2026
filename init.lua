@@ -113,9 +113,8 @@ vim.o.mouse = 'a'
 -- Don't show the mode, since it's already in the status line
 vim.o.showmode = false
 
--- Clipboard is intentionally NOT synced with the OS clipboard so Neovim
--- registers work independently. Use <leader>y / <leader>Y to explicitly
--- yank to the system clipboard when needed.
+-- Clipboard is NOT synced by default. Use <leader>y/Y to yank to the
+-- system clipboard. All other registers remain isolated to Neovim.
 --  See `:help 'clipboard'`
 
 -- Enable break indent
@@ -126,10 +125,16 @@ vim.wo.colorcolumn = '80'
 
 -- Enable undo/redo changes even after closing and reopening a file
 vim.o.undofile = true
+-- Enable backup files
+vim.o.backup = true
+vim.o.backupdir = vim.fn.stdpath('data') .. '/backup//'
+vim.o.writebackup = true
 
 -- Case-insensitive searching UNLESS \C or one or more capital letters in the search term
 vim.o.ignorecase = true
 vim.o.smartcase = true
+-- Show search matches as you type
+vim.o.incsearch = true
 
 -- Keep signcolumn on by default
 vim.o.signcolumn = 'yes'
@@ -194,7 +199,50 @@ vim.diagnostic.config {
 
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
--- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
+-- Toggle diagnostics location list (<leader>ud)
+vim.keymap.set('n', '<leader>ud', function()
+  local wins = vim.api.nvim_list_wins()
+  local loc_open = false
+  for _, win in ipairs(wins) do
+    local wininfo = vim.fn.getwininfo(win)[1]
+    if wininfo and wininfo.loclist == 1 then
+      loc_open = true
+      break
+    end
+  end
+  if loc_open then
+    vim.cmd('lclose')
+  else
+    vim.diagnostic.setloclist({ open = true })
+  end
+end, { desc = 'Toggle Diagnostics (Location List)' })
+
+-- Toggle workspace diagnostics quickfix list (<leader>x)
+vim.keymap.set('n', '<leader>x', function()
+  local wins = vim.api.nvim_list_wins()
+  local qf_open = false
+  for _, win in ipairs(wins) do
+    local wininfo = vim.fn.getwininfo(win)[1]
+    if wininfo and wininfo.quickfix == 1 then
+      qf_open = true
+      break
+    end
+  end
+  if qf_open then
+    vim.cmd('cclose')
+  else
+    vim.diagnostic.setqflist({ open = true })
+  end
+end, { desc = 'Toggle Workspace Diagnostics (Quickfix)' })
+
+-- Toggle inline diagnostics (virtual text) (<leader>uv)
+vim.keymap.set('n', '<leader>uv', function()
+  local config = vim.diagnostic.config()
+  local virt = config.virtual_text
+  vim.diagnostic.config { virtual_text = not virt }
+end, { desc = 'Toggle Inline Diagnostics' })
+
+ -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
 -- is not what someone will guess without a bit more experience.
 --
@@ -230,6 +278,16 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   desc = 'Highlight when yanking (copying) text',
   group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
   callback = function() vim.hl.on_yank() end,
+})
+
+-- Filetype detection for markdown variants
+vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, {
+  pattern = '*.mdx',
+  callback = function() vim.bo.filetype = 'mdx' end,
+})
+vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, {
+  pattern = '*.qmd',
+  callback = function() vim.bo.filetype = 'qmd' end,
 })
 
 -- [[ Install `lazy.nvim` plugin manager ]]
@@ -633,11 +691,13 @@ require('lazy').setup({
       --  See `:help lsp-config` for information about keys and how to configure
       ---@type table<string, vim.lsp.Config>
       local servers = {
-        -- Python with UV
-        pyright = {},
+-- Python with UV (using basedpyright instead of pyright)
+         basedpyright = {},
 
-        -- TypeScript/JavaScript
-        ts_ls = {},
+        -- TypeScript/JavaScript (including MDX)
+        ts_ls = {
+          filetypes = { 'typescript', 'javascript', 'typescriptreact', 'javascriptreact', 'mdx' },
+        },
 
         -- Vue
         vuels = {},
@@ -648,8 +708,10 @@ require('lazy').setup({
         -- Go
         gopls = {},
 
-        -- Markdown
-        marksman = {},
+        -- Markdown (.md and .qmd)
+        marksman = {
+          filetypes = { 'markdown', 'qmd' },
+        },
 
         -- SQL
         sqlls = {},
@@ -696,6 +758,12 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         -- You can add other tools here that you want Mason to install
+        'prettier', -- Formatter for web files (HTML, CSS, JS/TS, MDX, etc.)
+        'markdownlint', -- Linter for markdown files
+        'ruff', -- Python formatter
+        'eslint_d', -- JavaScript/TypeScript linter
+        'goimports', -- Go imports formatter
+        'sql-formatter', -- SQL formatter
       })
 
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
@@ -808,10 +876,13 @@ require('lazy').setup({
     'catppuccin/nvim',
     priority = 1000, -- Make sure to load this before all the other start plugins.
     config = function()
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'catppuccin'
+      -- Setup catppuccin with explicit flavour
+      require('catppuccin').setup({
+        flavour = 'mocha', -- latte, frappe, macchiato, mocha
+        -- transparent_background = false,
+      })
+      -- Load the colorscheme (must match flavour)
+      vim.cmd.colorscheme 'catppuccin-mocha'
     end,
   },
 
@@ -845,17 +916,11 @@ require('lazy').setup({
       require('mini.surround').setup()
 
       -- Simple and easy statusline.
-      --  You could remove this setup call if you don't like it,
-      --  and try some other statusline plugin
-      local statusline = require 'mini.statusline'
-      -- set use_icons to true if you have a Nerd Font
-      statusline.setup { use_icons = vim.g.have_nerd_font }
-
-      -- You can configure sections in the statusline by overriding their
-      -- default behavior. For example, here we set the section for
-      -- cursor location to LINE:COLUMN
-      ---@diagnostic disable-next-line: duplicate-set-field
-      statusline.section_location = function() return '%2l:%-2v' end
+      --  DISABLED: Using lualine instead (configured in lua/custom/plugins/lualine.lua)
+      --  local statusline = require 'mini.statusline'
+      --  statusline.setup { use_icons = vim.g.have_nerd_font }
+      --  ---@diagnostic disable-next-line: duplicate-set-field
+      --  statusline.section_location = function() return '%2l:%-2v' end
 
       -- ... and there is more!
       --  Check out: https://github.com/nvim-mini/mini.nvim
@@ -867,33 +932,15 @@ require('lazy').setup({
     lazy = false,
     build = ':TSUpdate',
     branch = 'main',
-    -- [[ Configure Treesitter ]] See `:help nvim-treesitter-intro`
-    config = function()
-      local parsers = { 'bash', 'c', 'diff', 'go', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' }
-      require('nvim-treesitter.install').prefer_git = false -- Suppress CLI requirement warning
-      require('nvim-treesitter').install(parsers)
-      vim.api.nvim_create_autocmd('FileType', {
-        callback = function(args)
-          local buf, filetype = args.buf, args.match
-
-          local language = vim.treesitter.language.get_lang(filetype)
-          if not language then return end
-
-          -- check if parser exists and load it
-          if not vim.treesitter.language.add(language) then return end
-          -- enables syntax highlighting and other treesitter features
-          vim.treesitter.start(buf, language)
-
-          -- enables treesitter based folds
-          -- for more info on folds see `:help folds`
-          -- vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
-          -- vim.wo.foldmethod = 'expr'
-
-          -- enables treesitter based indentation
-          vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
-        end,
-      })
-    end,
+    opts = {
+      ensure_installed = { 'bash', 'c', 'diff', 'go', 'html', 'javascript', 'typescript', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'mdx', 'query', 'vim', 'vimdoc' },
+      highlight = { enable = true },
+      indent = { enable = true },
+      auto_install = false,
+    },
+     config = function(_, opts)
+       require('nvim-treesitter.config').setup(opts)
+     end,
   },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
@@ -907,21 +954,21 @@ require('lazy').setup({
   --
   -- require 'kickstart.plugins.debug',
   require 'kickstart.plugins.indent_line',
-  -- require 'kickstart.plugins.lint',
+  require 'kickstart.plugins.lint',
   -- require 'kickstart.plugins.autopairs',
   -- require 'kickstart.plugins.neo-tree',
   require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
-  -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
-  --    This is the easiest way to modularize your config.
-  --
-  --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  { import = 'custom.plugins' },
-  --
-  -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
-  -- Or use telescope!
-  -- In normal mode type `<space>sh` then write `lazy.nvim-plugin`
-  -- you can continue same window with `<space>sr` which resumes last telescope search
+   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
+   --    This is the easiest way to modularize your config.
+   --
+   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
+   { import = 'custom.plugins' },
+   --
+   -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
+   -- Or use telescope!
+   -- In normal mode type `<space>sh` then write `lazy.nvim-plugin`
+   -- you can continue same window with `<space>sr` which resumes last telescope search
 }, { ---@diagnostic disable-line: missing-fields
   ui = {
     -- If you are using a Nerd Font: set icons to an empty table which will use the
@@ -943,6 +990,9 @@ require('lazy').setup({
     },
   },
 })
+
+-- Run kickstart health check
+require('kickstart.health').check()
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
