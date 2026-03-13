@@ -56,18 +56,6 @@ return {
           height = 10,
         },
       },
-      -- Configure diff windows to open as floating windows
-      win_config = function()
-        return {
-          type = 'float',
-          relative = 'editor',
-          row = math.floor(vim.o.lines * 0.05),
-          col = math.floor(vim.o.columns * 0.05),
-          width = math.floor(vim.o.columns * 0.9),
-          height = math.floor(vim.o.lines * 0.9),
-          border = 'rounded',
-        }
-      end,
     }
 
     -- Open neogit UI - all git operations (commit, push, pull, etc.) are done within the UI
@@ -101,9 +89,7 @@ return {
       for _, buf in ipairs(vim.api.nvim_list_bufs()) do
         if vim.api.nvim_buf_is_loaded(buf) then
           local filetype = vim.api.nvim_buf_get_option(buf, 'filetype')
-          if filetype == 'DiffviewFiles' or filetype == 'DiffviewFileHistory' then
-            vim.api.nvim_buf_delete(buf, { force = true })
-          end
+          if filetype == 'DiffviewFiles' or filetype == 'DiffviewFileHistory' then vim.api.nvim_buf_delete(buf, { force = true }) end
         end
       end
     end, { desc = '[G]it Force-close All Diffview Buffers' })

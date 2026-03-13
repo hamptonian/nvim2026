@@ -194,7 +194,16 @@ vim.diagnostic.config {
 
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
--- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
+ -- UI Diagnostics under <leader>u
+ vim.keymap.set('n', '<leader>ud', function()
+   vim.diagnostic.setloclist()
+   vim.cmd 'lopen'
+ end, { desc = '[U]I [D]iagnostics (Location List)' })
+
+ -- Quickfix list
+ vim.keymap.set('n', '<leader>x', '<cmd>copen<CR>', { desc = 'Open [Q]uickfix List' })
+
+ -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
 -- is not what someone will guess without a bit more experience.
 --
@@ -633,8 +642,8 @@ require('lazy').setup({
       --  See `:help lsp-config` for information about keys and how to configure
       ---@type table<string, vim.lsp.Config>
       local servers = {
-        -- Python with UV
-        pyright = {},
+-- Python with UV (using basedpyright instead of pyright)
+         basedpyright = {},
 
         -- TypeScript/JavaScript
         ts_ls = {},

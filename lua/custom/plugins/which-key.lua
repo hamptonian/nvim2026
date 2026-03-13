@@ -25,6 +25,7 @@ return {
         { '<leader>s', group = '󰍉 Search', mode = { 'n', 'v' } },
         { '<leader>u', group = '󰙵 UI' },
         { '<leader>ua', desc = '󰈬 Aerial (Code Outline)' },
+        { '<leader>ud', desc = '󰤨 Diagnostics (Location List)' },
         { '<leader>uu', desc = '󰕍 Undo Tree' },
         { '<leader>uz', desc = '󱓞 Zen Mode (Focus)' },
         { '<leader>t', group = ' Terminal' },
@@ -57,6 +58,7 @@ return {
         { '<leader>ca', desc = ' Copy All (File)' },
         { '<leader>cf', desc = ' Copy File Path' },
         { '<leader>cl', desc = ' Copy Path:Line' },
+        { '<leader>x', desc = '󰅜 Open Quickfix List' },
       },
       win = {
         border = 'rounded',

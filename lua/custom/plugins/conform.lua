@@ -25,7 +25,7 @@ return {
     end,
     formatters_by_ft = {
       lua = { 'stylua' },
-      python = { 'black', 'isort' },
+      python = { 'ruff' },
       typescript = { 'prettier' },
       javascript = { 'prettier' },
       javascriptreact = { 'prettier' },
