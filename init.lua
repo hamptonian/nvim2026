@@ -257,6 +257,9 @@ vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' }
 -- Save file with Ctrl+S
 vim.keymap.set({ 'n', 'i' }, '<C-s>', '<cmd>write<CR><Esc>', { desc = 'Save file' })
 
+-- Exit Neovim with Ctrl+Q (may need terminal configuration to disable XON/XOFF flow control)
+vim.keymap.set('n', '<C-q>', '<cmd>quit<CR>', { desc = 'Exit Neovim' })
+
 vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
@@ -316,7 +319,7 @@ rtp:prepend(lazypath)
 -- NOTE: Here is where you install your plugins.
 require('lazy').setup({
   -- NOTE: Plugins can be added via a link or github org/name. To run setup automatically, use `opts = {}`
-  { 'NMAC427/guess-indent.nvim', event = { 'BufReadPost', 'BufNewFile' }, opts = {} },
+  { 'NMAC427/guess-indent.nvim', opts = {} },
 
   -- Alternatively, use `config = function() ... end` for full control over the configuration.
   -- If you prefer to call `setup` explicitly, use:
@@ -335,7 +338,6 @@ require('lazy').setup({
   -- See `:help gitsigns` to understand what the configuration keys do
   { -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
-    event = { 'BufReadPost', 'BufNewFile' },
     ---@module 'gitsigns'
     ---@type Gitsigns.Config
     ---@diagnostic disable-next-line: missing-fields
@@ -560,21 +562,27 @@ require('lazy').setup({
     'neovim/nvim-lspconfig',
     dependencies = {
       -- Automatically install LSPs and related tools to stdpath for Neovim
-      -- Mason must be loaded before its dependents so we need to set it up here.
-      -- NOTE: `opts = {}` is the same as calling `require('mason').setup({})`
+      -- Mason is now lazy-loaded - only loads when you run :Mason
       {
         'mason-org/mason.nvim',
+        cmd = { 'Mason', 'MasonInstall', 'MasonUninstall', 'MasonLog' },
         ---@module 'mason.settings'
         ---@type MasonSettings
         ---@diagnostic disable-next-line: missing-fields
         opts = {},
       },
       -- Maps LSP server names between nvim-lspconfig and Mason package names.
-      'mason-org/mason-lspconfig.nvim',
-      'WhoIsSethDaniel/mason-tool-installer.nvim',
+      {
+        'mason-org/mason-lspconfig.nvim',
+        cmd = { 'Mason', 'MasonInstall', 'MasonUninstall' },
+      },
+      {
+        'WhoIsSethDaniel/mason-tool-installer.nvim',
+        cmd = { 'Mason', 'MasonInstall', 'MasonUninstall' },
+      },
 
       -- Useful status updates for LSP.
-      { 'j-hui/fidget.nvim', opts = {} },
+      { 'j-hui/fidget.nvim', event = 'LspAttach', opts = {} },
 
       -- Allows extra capabilities provided by blink.cmp
       'saghen/blink.cmp',
@@ -767,7 +775,15 @@ require('lazy').setup({
         'sql-formatter', -- SQL formatter
       })
 
-      require('mason-tool-installer').setup { ensure_installed = ensure_installed }
+      -- Defer mason-tool-installer setup to avoid startup overhead
+      -- Tools will be checked/installed when you run :Mason
+      vim.defer_fn(function()
+        -- Only setup if mason is available
+        local ok, mason_tool_installer = pcall(require, 'mason-tool-installer')
+        if ok then
+          mason_tool_installer.setup { ensure_installed = ensure_installed }
+        end
+      end, 5000) -- Wait 5 seconds after startup
 
       for name, server in pairs(servers) do
         vim.lsp.config(name, server)
@@ -778,13 +794,14 @@ require('lazy').setup({
 
   { -- Autocompletion
     'saghen/blink.cmp',
-    event = 'VimEnter',
+    event = { 'InsertEnter', 'CmdlineEnter' },
     version = '1.*',
     dependencies = {
       -- Snippet Engine
       {
         'L3MON4D3/LuaSnip',
         version = '2.*',
+        event = 'InsertEnter',
         build = (function()
           -- Build Step is needed for regex support in snippets.
           -- This step is not supported in many windows environments.
@@ -798,7 +815,15 @@ require('lazy').setup({
           --    https://github.com/rafamadriz/friendly-snippets
           {
             'rafamadriz/friendly-snippets',
-            config = function() require('luasnip.loaders.from_vscode').lazy_load() end,
+            config = function()
+              -- Defer snippet loading until InsertEnter
+              vim.api.nvim_create_autocmd('InsertEnter', {
+                once = true,
+                callback = function()
+                  require('luasnip.loaders.from_vscode').lazy_load()
+                end,
+              })
+            end,
           },
         },
         opts = {},
@@ -890,7 +915,7 @@ require('lazy').setup({
   -- Highlight todo, notes, etc in comments
   {
     'folke/todo-comments.nvim',
-    event = 'VimEnter',
+    event = { 'BufReadPost', 'BufNewFile' },
     dependencies = { 'nvim-lua/plenary.nvim' },
     ---@module 'todo-comments'
     ---@type TodoOptions
@@ -930,7 +955,7 @@ require('lazy').setup({
 
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
-    event = { 'BufReadPost', 'BufNewFile', 'BufWritePost' },
+    event = { 'BufReadPost', 'BufNewFile' },
     build = ':TSUpdate',
     branch = 'main',
     opts = {
@@ -939,26 +964,38 @@ require('lazy').setup({
       indent = { enable = true },
       auto_install = false,
     },
-     config = function(_, opts)
-       require('nvim-treesitter.config').setup(opts)
-     end,
+    config = function(_, opts)
+      require('nvim-treesitter.config').setup(opts)
+    end,
   },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
   -- place them in the correct locations.
 
-  -- NOTE: Next step on your Neovim journey: Add/Configure additional plugins for Kickstart
-  --
-  --  Here are some example plugins that I've included in the Kickstart repository.
-  --  Uncomment any of the lines below to enable them (you will need to restart nvim).
-  --
-  -- require 'kickstart.plugins.debug',
-  require 'kickstart.plugins.indent_line',
-  require 'kickstart.plugins.lint',
-  -- require 'kickstart.plugins.autopairs',
-  -- require 'kickstart.plugins.neo-tree',
-  require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+   -- NOTE: Next step on your Neovim journey: Add/Configure additional plugins for Kickstart
+   --
+   --  Here are some example plugins that I've included in the Kickstart repository.
+   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
+   --
+   -- require 'kickstart.plugins.debug',
+   require 'kickstart.plugins.indent_line',
+   require 'kickstart.plugins.lint',
+   -- require 'kickstart.plugins.autopairs',
+   -- require 'kickstart.plugins.neo-tree',
+   require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+
+    -- Vim fugitive (alternative to neogit for git operations)
+    { -- Git wrapper with extensive features
+      'tpope/vim-fugitive',
+      cmd = { 'Git', 'Gstatus', 'Gblame', 'Gdiffsplit', 'Gedit', 'Gwrite', 'Gread' },
+      keys = {
+        { '<leader>gf', '<cmd>Gedit<cr>', desc = '[G]it [E]dit (fugitive)' },
+        { '<leader>gC', '<cmd>Git commit<cr>', desc = '[G]it [C]ommit (fugitive)' },
+        { '<leader>gS', '<cmd>Gstatus<cr>', desc = '[G]it [S]tatus (fugitive)' },
+        { '<leader>gB', '<cmd>Gblame<cr>', desc = '[G]it [B]lame (fugitive)' },
+      },
+    },
 
    -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
    --    This is the easiest way to modularize your config.

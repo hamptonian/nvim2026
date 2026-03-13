@@ -2,6 +2,7 @@ return {
   'hat0uma/csvview.nvim',
   ---@module "csvview"
   ---@type CsvView.Options
+  ft = { 'csv', 'tsv' },
   opts = {
     parser = {
       comments = { '#', '//' },
@@ -15,8 +16,8 @@ return {
       },
     },
     view = {
-      -- Use border mode for cleaner visual separation
-      display_mode = 'border',
+      -- Use highlight mode for better column alignment
+      display_mode = 'highlight',
       -- Enable sticky header (frozen top row)
       sticky_header = { enabled = true, separator = '─' },
       -- Minimum column width
@@ -38,7 +39,6 @@ return {
       jump_prev_row = { '<S-Enter>', mode = { 'n', 'v' } },
     },
   },
-  ft = { 'csv', 'tsv' },
   keys = {
     { '<leader>cv', '<cmd>CsvViewToggle<CR>', desc = 'Toggle CSV view' },
   },
@@ -46,8 +46,8 @@ return {
     require('csvview').setup(opts)
 
     -- Auto-enable CSV view for CSV and TSV files
-    vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, {
-      pattern = { '*.csv', '*.tsv' },
+    vim.api.nvim_create_autocmd('FileType', {
+      pattern = { 'csv', 'tsv' },
       callback = function(args)
         -- Small delay to ensure buffer is loaded
         vim.defer_fn(function()
@@ -56,10 +56,10 @@ return {
       end,
     })
 
-    -- Set up rainbow column colors for better visual separation (catppuccin mocha palette)
+    -- Set up rainbow column colors matching catppuccin mocha theme
     local colors = {
       '#f38ba8', -- Pink
-      '#a6e3a1', -- Green  
+      '#a6e3a1', -- Green
       '#fab387', -- Peach
       '#89b4fa', -- Blue
       '#f9e2af', -- Yellow
@@ -74,6 +74,6 @@ return {
     end
 
     -- Set delimiter color
-    vim.api.nvim_set_hl(0, 'CsvViewDelimiter', { fg = '#666666' })
+    vim.api.nvim_set_hl(0, 'CsvViewDelimiter', { fg = '#6c7086' })
   end,
 }

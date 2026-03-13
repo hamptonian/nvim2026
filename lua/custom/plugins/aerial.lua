@@ -2,9 +2,8 @@
 ---@type LazySpec
 return {
   'stevearc/aerial.nvim',
-  cmd = { 'AerialToggle', 'AerialOpen', 'AerialClose' },
   keys = {
-    { '<leader>ua', '<cmd>AerialToggle<CR>', desc = '[U]I [A]erial (Code Outline)' },
+    { '<leader>ua', function() require('aerial').toggle() end, desc = '[U]I [A]erial (Code Outline)' },
   },
   opts = {
     -- optionally use on_attach to set keymaps when aerial attaches to a buffer
@@ -14,10 +13,10 @@ return {
       vim.keymap.set('n', '}', '<cmd>AerialNext<CR>', { buffer = bufnr, desc = 'Next Symbol' })
     end,
   },
-  -- Optional dependencies
+  -- Optional dependencies - nvim-web-devicons only needed when aerial opens
   dependencies = {
     'nvim-treesitter/nvim-treesitter',
-    'nvim-tree/nvim-web-devicons',
+    { 'nvim-tree/nvim-web-devicons', optional = true },
   },
   config = function(_, opts)
     require('aerial').setup(opts)
