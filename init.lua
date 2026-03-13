@@ -194,14 +194,49 @@ vim.diagnostic.config {
 
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
- -- UI Diagnostics under <leader>u
- vim.keymap.set('n', '<leader>ud', function()
-   vim.diagnostic.setloclist()
-   vim.cmd 'lopen'
- end, { desc = '[U]I [D]iagnostics (Location List)' })
+-- Toggle diagnostics location list (<leader>ud)
+vim.keymap.set('n', '<leader>ud', function()
+  vim.diagnostic.setloclist()
+  local wins = vim.api.nvim_list_wins()
+  local loc_open = false
+  for _, win in ipairs(wins) do
+    local wininfo = vim.fn.getwininfo(win)[1]
+    if wininfo and wininfo.loclist == 1 then
+      loc_open = true
+      break
+    end
+  end
+  if loc_open then
+    vim.cmd('lclose')
+  else
+    vim.cmd('lopen')
+  end
+end, { desc = 'Toggle Diagnostics (Location List)' })
 
- -- Quickfix list
- vim.keymap.set('n', '<leader>x', '<cmd>copen<CR>', { desc = 'Open [Q]uickfix List' })
+-- Toggle quickfix list (<leader>x)
+vim.keymap.set('n', '<leader>x', function()
+  local wins = vim.api.nvim_list_wins()
+  local qf_open = false
+  for _, win in ipairs(wins) do
+    local wininfo = vim.fn.getwininfo(win)[1]
+    if wininfo and wininfo.quickfix == 1 then
+      qf_open = true
+      break
+    end
+  end
+  if qf_open then
+    vim.cmd('cclose')
+  else
+    vim.cmd('copen')
+  end
+end, { desc = 'Toggle Quickfix List' })
+
+-- Toggle inline diagnostics (virtual text) (<leader>uv)
+vim.keymap.set('n', '<leader>uv', function()
+  local config = vim.diagnostic.config()
+  local virt = config.virtual_text
+  vim.diagnostic.config { virtual_text = not virt }
+end, { desc = 'Toggle Inline Diagnostics' })
 
  -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
