@@ -148,6 +148,8 @@ vim.o.timeoutlen = 300
 -- Configure how new splits should be opened
 vim.o.splitright = true
 vim.o.splitbelow = true
+-- Disable automatic window equalization to preserve sidebar widths
+vim.opt.equalalways = false
 
 -- Sets how neovim will display certain whitespace characters in the editor.
 --  See `:help 'list'`
@@ -462,6 +464,13 @@ require('lazy').setup({
             },
           },
         },
+        pickers = {
+          oldfiles = {
+            sort_by = function(_, entry)
+              return entry.stat and entry.stat.mtime or 0
+            end,
+          },
+        },
         extensions = {
           ['ui-select'] = { require('telescope.themes').get_dropdown() },
           fzf = {
@@ -571,15 +580,13 @@ require('lazy').setup({
         ---@diagnostic disable-next-line: missing-fields
         opts = {},
       },
-      -- Maps LSP server names between nvim-lspconfig and Mason package names.
-      {
-        'mason-org/mason-lspconfig.nvim',
-        cmd = { 'Mason', 'MasonInstall', 'MasonUninstall' },
-      },
-      {
-        'WhoIsSethDaniel/mason-tool-installer.nvim',
-        cmd = { 'Mason', 'MasonInstall', 'MasonUninstall' },
-      },
+       -- Maps LSP server names between nvim-lspconfig and Mason package names.
+       {
+         'mason-org/mason-lspconfig.nvim',
+       },
+       {
+         'WhoIsSethDaniel/mason-tool-installer.nvim',
+       },
 
       -- Useful status updates for LSP.
       { 'j-hui/fidget.nvim', event = 'LspAttach', opts = {} },
@@ -713,6 +720,9 @@ require('lazy').setup({
 
         -- React already covered by ts_ls
         -- but we can use additional tools if needed
+
+        -- Astro
+        astro = {},
 
         -- Go
         gopls = {},
@@ -957,7 +967,7 @@ require('lazy').setup({
     build = ':TSUpdate',
     branch = 'main',
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'go', 'html', 'javascript', 'typescript', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'mdx', 'query', 'vim', 'vimdoc' },
+      ensure_installed = { 'bash', 'c', 'diff', 'go', 'html', 'javascript', 'typescript', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'mdx', 'query', 'vim', 'vimdoc', 'astro' },
       highlight = { enable = true },
       indent = { enable = true },
       auto_install = false,
@@ -993,6 +1003,14 @@ require('lazy').setup({
         { '<leader>gS', '<cmd>Git<cr>', desc = '[G]it [S]tatus (fugitive)' },
         { '<leader>gB', '<cmd>Gblame<cr>', desc = '[G]it [B]lame (fugitive)' },
       },
+      init = function()
+        vim.api.nvim_create_autocmd('FileType', {
+          pattern = 'fugitive',
+          callback = function()
+            vim.cmd('only')
+          end,
+        })
+      end,
     },
 
    -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
