@@ -6,7 +6,12 @@ return {
   priority = 900,
   config = function()
     require('which-key').setup {
-      delay = 0,
+      delay = function(ctx)
+        if ctx.keys == '<space>' or ctx.prefix == '<space>' then
+          return 200
+        end
+        return 500
+      end,
       spec = {
         { 'gr', group = '󰒍 LSP Actions', mode = { 'n' } },
         { '<leader>e', desc = '󰈔 Oil (Parent Dir)' },

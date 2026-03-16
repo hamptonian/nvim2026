@@ -127,7 +127,7 @@ vim.wo.colorcolumn = '80'
 vim.o.undofile = true
 -- Enable backup files
 vim.o.backup = true
-vim.o.backupdir = vim.fn.stdpath('data') .. '/backup//'
+vim.o.backupdir = vim.fn.stdpath 'data' .. '/backup//'
 vim.o.writebackup = true
 
 -- Case-insensitive searching UNLESS \C or one or more capital letters in the search term
@@ -213,9 +213,9 @@ vim.keymap.set('n', '<leader>ud', function()
     end
   end
   if loc_open then
-    vim.cmd('lclose')
+    vim.cmd 'lclose'
   else
-    vim.diagnostic.setloclist({ open = true, bufnr = 0 })
+    vim.diagnostic.setloclist { open = true, bufnr = 0 }
   end
 end, { desc = 'Toggle Diagnostics (Location List)' })
 
@@ -231,9 +231,9 @@ vim.keymap.set('n', '<leader>x', function()
     end
   end
   if qf_open then
-    vim.cmd('cclose')
+    vim.cmd 'cclose'
   else
-    vim.diagnostic.setqflist({ open = true })
+    vim.diagnostic.setqflist { open = true }
   end
 end, { desc = 'Toggle Workspace Diagnostics (Quickfix)' })
 
@@ -244,7 +244,7 @@ vim.keymap.set('n', '<leader>uv', function()
   vim.diagnostic.config { virtual_text = not virt }
 end, { desc = 'Toggle Inline Diagnostics' })
 
- -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
+-- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
 -- is not what someone will guess without a bit more experience.
 --
@@ -466,9 +466,7 @@ require('lazy').setup({
         },
         pickers = {
           oldfiles = {
-            sort_by = function(_, entry)
-              return entry.stat and entry.stat.mtime or 0
-            end,
+            sort_by = function(_, entry) return entry.stat and entry.stat.mtime or 0 end,
           },
         },
         extensions = {
@@ -580,13 +578,13 @@ require('lazy').setup({
         ---@diagnostic disable-next-line: missing-fields
         opts = {},
       },
-       -- Maps LSP server names between nvim-lspconfig and Mason package names.
-       {
-         'mason-org/mason-lspconfig.nvim',
-       },
-       {
-         'WhoIsSethDaniel/mason-tool-installer.nvim',
-       },
+      -- Maps LSP server names between nvim-lspconfig and Mason package names.
+      {
+        'mason-org/mason-lspconfig.nvim',
+      },
+      {
+        'WhoIsSethDaniel/mason-tool-installer.nvim',
+      },
 
       -- Useful status updates for LSP.
       { 'j-hui/fidget.nvim', event = 'LspAttach', opts = {} },
@@ -707,8 +705,8 @@ require('lazy').setup({
       --  See `:help lsp-config` for information about keys and how to configure
       ---@type table<string, vim.lsp.Config>
       local servers = {
--- Python with UV (using basedpyright instead of pyright)
-         basedpyright = {},
+        -- Python with UV (using basedpyright instead of pyright)
+        basedpyright = {},
 
         -- TypeScript/JavaScript (including MDX)
         ts_ls = {
@@ -790,9 +788,7 @@ require('lazy').setup({
       vim.defer_fn(function()
         -- Only setup if mason is available
         local ok, mason_tool_installer = pcall(require, 'mason-tool-installer')
-        if ok then
-          mason_tool_installer.setup { ensure_installed = ensure_installed }
-        end
+        if ok then mason_tool_installer.setup { ensure_installed = ensure_installed } end
       end, 5000) -- Wait 5 seconds after startup
 
       -- Defer LSP server startup to reduce initial load time
@@ -820,9 +816,7 @@ require('lazy').setup({
         config = function()
           vim.api.nvim_create_autocmd('InsertEnter', {
             once = true,
-            callback = function()
-              require('luasnip.loaders.from_vscode').lazy_load()
-            end,
+            callback = function() require('luasnip.loaders.from_vscode').lazy_load() end,
           })
         end,
       },
@@ -911,10 +905,10 @@ require('lazy').setup({
     priority = 1000, -- Make sure to load this before all the other start plugins.
     config = function()
       -- Setup catppuccin with explicit flavour
-      require('catppuccin').setup({
+      require('catppuccin').setup {
         flavour = 'mocha', -- latte, frappe, macchiato, mocha
         -- transparent_background = false,
-      })
+      }
       -- Load the colorscheme (must match flavour)
       vim.cmd.colorscheme 'catppuccin-mocha'
     end,
@@ -967,62 +961,75 @@ require('lazy').setup({
     build = ':TSUpdate',
     branch = 'main',
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'go', 'html', 'javascript', 'typescript', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'mdx', 'query', 'vim', 'vimdoc', 'astro' },
+      ensure_installed = {
+        'bash',
+        'c',
+        'diff',
+        'go',
+        'html',
+        'javascript',
+        'typescript',
+        'lua',
+        'luadoc',
+        'markdown',
+        'markdown_inline',
+        'mdx',
+        'query',
+        'vim',
+        'vimdoc',
+        'astro',
+      },
       highlight = { enable = true },
       indent = { enable = true },
       auto_install = false,
     },
-    config = function(_, opts)
-      require('nvim-treesitter.config').setup(opts)
-    end,
+    config = function(_, opts) require('nvim-treesitter.config').setup(opts) end,
   },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
   -- place them in the correct locations.
 
-   -- NOTE: Next step on your Neovim journey: Add/Configure additional plugins for Kickstart
-   --
-   --  Here are some example plugins that I've included in the Kickstart repository.
-   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
-   --
-   -- require 'kickstart.plugins.debug',
-   require 'kickstart.plugins.indent_line',
-   require 'kickstart.plugins.lint',
-   -- require 'kickstart.plugins.autopairs',
-   -- require 'kickstart.plugins.neo-tree',
-   require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+  -- NOTE: Next step on your Neovim journey: Add/Configure additional plugins for Kickstart
+  --
+  --  Here are some example plugins that I've included in the Kickstart repository.
+  --  Uncomment any of the lines below to enable them (you will need to restart nvim).
+  --
+  -- require 'kickstart.plugins.debug',
+  require 'kickstart.plugins.indent_line',
+  require 'kickstart.plugins.lint',
+  -- require 'kickstart.plugins.autopairs',
+  -- require 'kickstart.plugins.neo-tree',
+  require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
-    -- Vim fugitive (alternative to neogit for git operations)
-    { -- Git wrapper with extensive features
-      'tpope/vim-fugitive',
-      cmd = { 'Git', 'G', 'Gblame', 'Gdiffsplit', 'Gedit', 'Gwrite', 'Gread' },
-      keys = {
-        { '<leader>gf', '<cmd>Git<cr>', desc = '[G]it [f]ugitive status' },
-        { '<leader>gC', '<cmd>Git commit<cr>', desc = '[G]it [C]ommit (fugitive)' },
-        { '<leader>gS', '<cmd>Git<cr>', desc = '[G]it [S]tatus (fugitive)' },
-        { '<leader>gB', '<cmd>Gblame<cr>', desc = '[G]it [B]lame (fugitive)' },
-      },
-      init = function()
-        vim.api.nvim_create_autocmd('FileType', {
-          pattern = 'fugitive',
-          callback = function()
-            vim.cmd('only')
-          end,
-        })
-      end,
+  -- Vim fugitive (alternative to neogit for git operations)
+  { -- Git wrapper with extensive features
+    'tpope/vim-fugitive',
+    cmd = { 'Git', 'G', 'Gblame', 'Gdiffsplit', 'Gedit', 'Gwrite', 'Gread' },
+    keys = {
+      { '<leader>gf', '<cmd>Git<cr>', desc = '[G]it [f]ugitive status' },
+      { '<leader>gC', '<cmd>Git commit<cr>', desc = '[G]it [C]ommit (fugitive)' },
+      { '<leader>gS', '<cmd>Git<cr>', desc = '[G]it [S]tatus (fugitive)' },
+      { '<leader>gB', '<cmd>Gblame<cr>', desc = '[G]it [B]lame (fugitive)' },
     },
+    init = function()
+      vim.api.nvim_create_autocmd('FileType', {
+        pattern = 'fugitive',
+        callback = function() vim.cmd 'only' end,
+      })
+    end,
+  },
 
-   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
-   --    This is the easiest way to modularize your config.
-   --
-   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-   { import = 'custom.plugins' },
-   --
-   -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
-   -- Or use telescope!
-   -- In normal mode type `<space>sh` then write `lazy.nvim-plugin`
-   -- you can continue same window with `<space>sr` which resumes last telescope search
+  -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
+  --    This is the easiest way to modularize your config.
+  --
+  --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
+  { import = 'custom.plugins' },
+  --
+  -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
+  -- Or use telescope!
+  -- In normal mode type `<space>sh` then write `lazy.nvim-plugin`
+  -- you can continue same window with `<space>sr` which resumes last telescope search
 }, { ---@diagnostic disable-line: missing-fields
   ui = {
     -- If you are using a Nerd Font: set icons to an empty table which will use the
