@@ -13,8 +13,8 @@ return {
       style = 'full',
     },
     checkbox = {
-      checked = '✓',
-      unchecked = '✗',
+      checked = { icon = '✓', highlight = 'RenderMarkdownChecked' },
+      unchecked = { icon = '✗', highlight = 'RenderMarkdownUnchecked' },
     },
     hr = '─',
     quote = '┃',
