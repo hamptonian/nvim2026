@@ -722,6 +722,14 @@ require('lazy').setup({
         -- Astro
         astro = {},
 
+        -- Svelte
+        svelte = {},
+
+        -- CSS (covers css, scss, less, svelte, vue, astro with Tailwind)
+        tailwindcss = {
+          filetypes = { 'css', 'scss', 'html', 'svelte', 'vue', 'astro', 'javascriptreact', 'typescriptreact' },
+        },
+
         -- Go
         gopls = {},
 
@@ -969,6 +977,10 @@ require('lazy').setup({
         'html',
         'javascript',
         'typescript',
+        'tsx',
+        'css',
+        'scss',
+        'svelte',
         'lua',
         'luadoc',
         'markdown',
