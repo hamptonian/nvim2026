@@ -30,6 +30,7 @@ return {
       javascript = { 'prettier' },
       javascriptreact = { 'prettier' },
       typescriptreact = { 'prettier' },
+      svelte = { 'prettier' },
       vue = { 'prettier' },
       json = { 'prettier' },
       yaml = { 'prettier' },
