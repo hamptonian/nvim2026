@@ -7,7 +7,18 @@ return {
     event = { 'BufReadPre', 'BufNewFile' },
     config = function()
        local lint = require 'lint'
-  lint.linters_by_ft = {
+
+       -- Configure markdownlint to use markdownlint-cli2
+       lint.linters.markdownlint = {
+         cmd = 'markdownlint-cli2',
+         stdin = true,
+         args = { '--stdin' },
+         stream = 'stdout',
+         ignore_exitcode = true,
+         parser = require('lint.linters.markdownlint').parser,
+       }
+
+       lint.linters_by_ft = {
           markdown = { 'markdownlint' },
           mdx = { 'markdownlint' },
           qmd = { 'markdownlint' },
