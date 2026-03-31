@@ -741,6 +741,16 @@ require('lazy').setup({
         -- SQL
         sqlls = {},
 
+        -- PHP/Laravel
+        intelephense = {
+          init_options = {
+            licenceKey = vim.env.INTELEPHENCE_LICENCE_KEY or '',
+          },
+        },
+
+        -- YAML
+        yamlls = {},
+
         stylua = {}, -- Used to format Lua code
 
         -- Special Lua Config, as recommended by neovim help docs
@@ -789,6 +799,7 @@ require('lazy').setup({
         'eslint_d', -- JavaScript/TypeScript linter
         'goimports', -- Go imports formatter
         'sql-formatter', -- SQL formatter
+        'pint', -- Laravel PHP formatter
       })
 
       -- Defer mason-tool-installer setup to avoid startup overhead
@@ -990,6 +1001,8 @@ require('lazy').setup({
         'vim',
         'vimdoc',
         'astro',
+        'php',
+        'yaml',
       },
       highlight = { enable = true },
       indent = { enable = true },
