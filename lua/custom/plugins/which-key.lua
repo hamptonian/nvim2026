@@ -14,6 +14,8 @@ return {
       end,
       spec = {
         { 'gr', group = '󰒍 LSP Actions', mode = { 'n' } },
+        { '[a', desc = '󰒜 Previous Symbol (Aerial)' },
+        { ']a', desc = '󰒜 Next Symbol (Aerial)' },
         { '<leader>e', desc = '󰈔 Oil (Parent Dir)' },
         { '<leader>fe', desc = '󰈔 File Explorer (nvim-tree)' },
         { '<leader>fr', desc = '󰈔 Reveal File in Tree' },

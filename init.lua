@@ -709,14 +709,14 @@ require('lazy').setup({
         basedpyright = {},
 
         -- TypeScript/JavaScript (including MDX)
-        ts_ls = {
+        vtsls = {
           filetypes = { 'typescript', 'javascript', 'typescriptreact', 'javascriptreact', 'mdx' },
         },
 
         -- Vue
         vuels = {},
 
-        -- React already covered by ts_ls
+        -- React already covered by vtsls
         -- but we can use additional tools if needed
 
         -- Astro

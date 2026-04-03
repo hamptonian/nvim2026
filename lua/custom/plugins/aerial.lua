@@ -8,9 +8,9 @@ return {
   opts = {
     -- optionally use on_attach to set keymaps when aerial attaches to a buffer
     on_attach = function(bufnr)
-      -- Jump forwards/backwards with '{' and '}'
-      vim.keymap.set('n', '{', '<cmd>AerialPrev<CR>', { buffer = bufnr, desc = 'Previous Symbol' })
-      vim.keymap.set('n', '}', '<cmd>AerialNext<CR>', { buffer = bufnr, desc = 'Next Symbol' })
+      -- Jump forwards/backwards with '[a' and ']a'
+      vim.keymap.set('n', '[a', '<cmd>AerialPrev<CR>', { buffer = bufnr, desc = 'Previous Symbol' })
+      vim.keymap.set('n', ']a', '<cmd>AerialNext<CR>', { buffer = bufnr, desc = 'Next Symbol' })
     end,
   },
   -- Optional dependencies - nvim-web-devicons only needed when aerial opens
