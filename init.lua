@@ -976,6 +976,7 @@ require('lazy').setup({
         'go',
         'html',
         'javascript',
+        'jsx',
         'typescript',
         'tsx',
         'css',
