@@ -44,6 +44,8 @@ return {
         { '<leader>gg', desc = ' Git Status (Neogit)' },
         { '<leader>gc', desc = ' Git Commits (Telescope)' },
         { '<leader>gb', desc = ' Git Branches (Telescope)' },
+        { '<leader>gB', desc = ' Git Blame (gitsigns)' },
+
         { '<leader>gd', desc = ' Git Diff (Diffview)' },
         { '<leader>gl', desc = ' Git Log (File History)' },
         { '<leader>gq', desc = ' Close Git (Neogit/Diffview)' },
@@ -67,6 +69,7 @@ return {
         { '<leader>cf', desc = ' Copy File Path' },
         { '<leader>cl', desc = ' Copy Path:Line' },
         { '<leader>x', desc = 'Toggle Workspace Diagnostics (Quickfix)' },
+        { '<leader>lx', desc = 'Toggle Local Diagnostics (Location List)' },
       },
       win = {
         border = 'rounded',

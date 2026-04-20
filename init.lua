@@ -176,6 +176,16 @@ vim.o.scrolloff = 10
 -- See `:help 'confirm'`
 vim.o.confirm = true
 
+-- Auto-indent and comment continuation
+vim.o.autoindent = true
+vim.o.smartindent = true
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = '*',
+  callback = function()
+    vim.bo.formatoptions = vim.bo.formatoptions .. 'ro'
+  end,
+})
+
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
@@ -236,6 +246,24 @@ vim.keymap.set('n', '<leader>x', function()
     vim.diagnostic.setqflist { open = true }
   end
 end, { desc = 'Toggle Workspace Diagnostics (Quickfix)' })
+
+-- Toggle local diagnostics quickfix list (<leader>lx)
+vim.keymap.set('n', '<leader>lx', function()
+  local wins = vim.api.nvim_list_wins()
+  local loc_open = false
+  for _, win in ipairs(wins) do
+    local wininfo = vim.fn.getwininfo(win)[1]
+    if wininfo and wininfo.loclist == 1 then
+      loc_open = true
+      break
+    end
+  end
+  if loc_open then
+    vim.cmd 'lclose'
+  else
+    vim.diagnostic.setloclist { open = true, bufnr = 0 }
+  end
+end, { desc = 'Toggle Local Diagnostics (Location List)' })
 
 -- Toggle inline diagnostics (virtual text) (<leader>uv)
 vim.keymap.set('n', '<leader>uv', function()
@@ -351,6 +379,10 @@ require('lazy').setup({
         topdelete = { text = '‾' }, ---@diagnostic disable-line: missing-fields
         changedelete = { text = '~' }, ---@diagnostic disable-line: missing-fields
       },
+      on_attach = function()
+        local gs = require('gitsigns')
+        vim.keymap.set('n', '<leader>gB', gs.blame, { desc = 'Git Blame' })
+      end,
     },
   },
 
@@ -877,6 +909,10 @@ require('lazy').setup({
         -- By default, you may press `<c-space>` to show the documentation.
         -- Optionally, set `auto_show = true` to show the documentation after a delay.
         documentation = { auto_show = false, auto_show_delay_ms = 500 },
+        menu = {
+          -- Disable auto-show, only show on <c-space> or after min_keyword_length chars
+          auto_show = false,
+        },
       },
 
       sources = {
@@ -1018,12 +1054,12 @@ require('lazy').setup({
   -- Vim fugitive (alternative to neogit for git operations)
   { -- Git wrapper with extensive features
     'tpope/vim-fugitive',
-    cmd = { 'Git', 'G', 'Gblame', 'Gdiffsplit', 'Gedit', 'Gwrite', 'Gread' },
+    -- cmd = { 'Git', 'G', 'Gblame', 'Gdiffsplit', 'Gedit', 'Gwrite', 'Gread' },
     keys = {
       { '<leader>gf', '<cmd>Git<cr>', desc = '[G]it [f]ugitive status' },
       { '<leader>gC', '<cmd>Git commit<cr>', desc = '[G]it [C]ommit (fugitive)' },
       { '<leader>gS', '<cmd>Git<cr>', desc = '[G]it [S]tatus (fugitive)' },
-      { '<leader>gB', '<cmd>Gblame<cr>', desc = '[G]it [B]lame (fugitive)' },
+
     },
     init = function()
       vim.api.nvim_create_autocmd('FileType', {
