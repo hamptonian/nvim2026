@@ -8,7 +8,7 @@ return {
     { '<leader>fr', '<cmd>NvimTreeFindFile<CR>', desc = 'Reveal current file in tree' },
     { '<leader>fc', '<cmd>NvimTreeCollapse<CR>', desc = 'Collapse file tree' },
   },
-  opts = {
+   opts = {
     sort_by = 'case_sensitive',
     view = {
       width = 30,
@@ -18,6 +18,9 @@ return {
     },
     filters = {
       dotfiles = false,
+    },
+    filesystem_watchers = {
+      ignore_dirs = { "node_modules", ".git", "dist", "build", "target" },
     },
   },
 }

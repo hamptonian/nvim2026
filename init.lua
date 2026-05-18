@@ -619,7 +619,15 @@ require('lazy').setup({
       },
 
       -- Useful status updates for LSP.
-      { 'j-hui/fidget.nvim', event = 'LspAttach', opts = {} },
+      {
+        'j-hui/fidget.nvim',
+        event = 'LspAttach',
+        opts = {
+          progress = {
+            ignore = { 'basedpyright' },
+          },
+        },
+      },
 
       -- Allows extra capabilities provided by blink.cmp
       'saghen/blink.cmp',
@@ -831,13 +839,10 @@ require('lazy').setup({
         if ok then mason_tool_installer.setup { ensure_installed = ensure_installed } end
       end, 5000) -- Wait 5 seconds after startup
 
-      -- Defer LSP server startup to reduce initial load time
-      vim.defer_fn(function()
-        for name, server in pairs(servers) do
-          vim.lsp.config(name, server)
-          vim.lsp.enable(name)
-        end
-      end, 100)
+      for name, server in pairs(servers) do
+        vim.lsp.config(name, server)
+        vim.lsp.enable(name)
+      end
     end,
   },
 
@@ -910,8 +915,7 @@ require('lazy').setup({
         -- Optionally, set `auto_show = true` to show the documentation after a delay.
         documentation = { auto_show = false, auto_show_delay_ms = 500 },
         menu = {
-          -- Disable auto-show, only show on <c-space> or after min_keyword_length chars
-          auto_show = false,
+          auto_show = true,
         },
       },
 

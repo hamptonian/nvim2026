@@ -33,8 +33,8 @@ return {
         hunk = { '', '' },
       },
       integrations = {
-        diffview = true, -- Use diffview for diffs within Neogit
-        telescope = true, -- Ensure telescope is used for fuzzy finding
+        diffview = true,
+        telescope = true,
       },
     }
 
